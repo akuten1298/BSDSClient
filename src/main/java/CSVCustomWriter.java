@@ -31,7 +31,6 @@ public class CSVCustomWriter implements Runnable{
                 value.getStartTime(), value.getEndTime(), value.getLatency(),
                 value.getResponseCode(), value.getRequestType());
             atomicInteger.getAndIncrement();
-//          System.out.println(atomicInteger.get());
           } else {
             System.out.println("Poison Caught");
           }

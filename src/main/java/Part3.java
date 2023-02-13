@@ -56,23 +56,25 @@ public class Part3 {
     failedCount = new AtomicInteger(0);
     totalCount = new AtomicInteger(0);
 
-//    File file = new File("temp.csv");
-//    if(file.exists()) {
-//      file.delete();
-//    }
+    File file = new File("records.csv");
+    if(file.exists()) {
+      file.delete();
+    }
 
-//    PrintWriter printWriter = null;
-//    try {
-//      printWriter = new PrintWriter(file);
-//    } catch (FileNotFoundException e) {
-//      e.printStackTrace();
-//    }
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(file);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
 
-//    Thread[] csvWriters = new Thread[NUM_CONSUMER_THREADS];
-//    for(int i = 0; i < NUM_CONSUMER_THREADS; i++) {
-//      csvWriters[i] = new Thread(new CSVWriter(queue, printWriter));
-//      csvWriters[i].start();
-//    }
+    Thread[] csvWriters = new Thread[NUM_CONSUMER_THREADS];
+    for(int i = 0; i < NUM_CONSUMER_THREADS; i++) {
+      csvWriters[i] = new Thread(new CSVCustomWriter(queue, printWriter));
+      csvWriters[i].start();
+    }
+
+    // Ec2 request start
 
     Timestamp startTime = Timestamp.from(Instant.now());
     System.out.println("Start Time: " + startTime);
@@ -113,25 +115,23 @@ public class Part3 {
     System.out.println("Number of successful requests: " + (NUM_THREADS * TASKS_PER_THREAD - failedCount.get()));
     System.out.println("Number of unsuccessful requests: " + failedCount.get());
 
+    try {
+      queue.put(new CSVRecord(true));
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
+    try {
+      for(int i = 0; i < NUM_CONSUMER_THREADS; i++) {
+        csvWriters[i].join();
+      }
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
 
-//    try {
-//      queue.put(new CSVRecord(true));
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    }
-//
-//    try {
-//      for(int i = 0; i < NUM_CONSUMER_THREADS; i++) {
-//        csvWriters[i].join();
-//      }
-//    } catch (InterruptedException e) {
-//      throw new RuntimeException(e);
-//    }
-
-//    System.out.println("Total consumed records: " + CSVWriter.atomicInteger.get());
-//    printWriter.flush();
-//    printWriter.close();
+    System.out.println("Total consumed records: " + CSVCustomWriter.atomicInteger.get());
+    printWriter.flush();
+    printWriter.close();
 
 
     // CSV CSV CSV CSV
@@ -171,50 +171,43 @@ public class Part3 {
 //    }
 
     // Create a writer object
-    String fileName = "new3.csv";
-    boolean append = true;
-
-    try {
-      FileWriter fileWriter = new FileWriter("new.csv");
-//      CSVWriter writer = new CSVWriter(fileWriter);
-
-      // Write data
-      fileWriter.write("Start Time,");
-      fileWriter.write(" End Time,");
-      fileWriter.write(" Latency,");
-      fileWriter.write(" Response Code,");
-      fileWriter.write(" Request Type");
-      fileWriter.write(System.getProperty( "line.separator" ));
-      fileWriter.flush();
-
-      for(CSVRecord queue : globalQueue) {
-
-        fileWriter.write(queue.getStartTime()); fileWriter.write(System.getProperty( "line.separator" ));
-        fileWriter.write(queue.getEndTime()); fileWriter.write(System.getProperty( "line.separator" ));
-        fileWriter.write(queue.getLatency()); fileWriter.write(System.getProperty( "line.separator" ));
-        fileWriter.write(queue.getResponseCode()); fileWriter.write(System.getProperty( "line.separator" ));
-        fileWriter.write(queue.getRequestType());
-
-        fileWriter.write(System.getProperty( "line.separator" ));
-        fileWriter.flush();
-//        writer.writeNext(header);
-//        writer.flush();
-      }
-
-//      writer.close();
-      fileWriter.flush();
-      fileWriter.close();
-
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-
-
-
-
-
-
+//    String fileName = "new3.csv";
+//    boolean append = true;
+//
+//    try {
+//      FileWriter fileWriter = new FileWriter("new2.csv");
+////      CSVWriter writer = new CSVWriter(fileWriter);
+//
+//      // Write data
+//      fileWriter.write("Start Time,");
+//      fileWriter.write(" End Time,");
+//      fileWriter.write(" Latency,");
+//      fileWriter.write(" Response Code,");
+//      fileWriter.write(" Request Type");
+//      fileWriter.write(System.getProperty( "line.separator" ));
+//      fileWriter.flush();
+//
+//      for(CSVRecord queue : globalQueue) {
+//
+//        fileWriter.write("trial");
+////        fileWriter.write(CSV_FILED_SEPERATOR);
+////        fileWriter.write(queue.getEndTime()); fileWriter.write(CSV_FILED_SEPERATOR);
+////        fileWriter.write(queue.getLatency()); fileWriter.write(CSV_FILED_SEPERATOR);
+////        fileWriter.write(queue.getResponseCode()); fileWriter.write(CSV_FILED_SEPERATOR);
+////        fileWriter.write(queue.getRequestType());
+//
+//        fileWriter.write(System.getProperty( "line.separator" ));
+//        fileWriter.flush();
+//
+//      }
+//
+////      writer.close();
+//      fileWriter.flush();
+//      fileWriter.close();
+//
+//    } catch (IOException e) {
+//      throw new RuntimeException(e);
+//    }
   }
 
   public static void sendRequest() {
@@ -233,14 +226,14 @@ public class Part3 {
         try {
           apiInstance.swipe(body, swipeDirection);
           Timestamp requestEndTime = Timestamp.from(Instant.now());
-//          queue.put(new CSVRecord(requestStartTime.toString(), requestEndTime.toString(),
-//              String.valueOf(requestEndTime.getTime() - requestStartTime.getTime()),
-//              String.valueOf(201), REQUEST_TYPE
-//              ));
-          globalQueue.add(new CSVRecord(requestStartTime.toString(), requestEndTime.toString(),
+          queue.put(new CSVRecord(requestStartTime.toString(), requestEndTime.toString(),
               String.valueOf(requestEndTime.getTime() - requestStartTime.getTime()),
               String.valueOf(201), REQUEST_TYPE
               ));
+//          globalQueue.add(new CSVRecord(requestStartTime.toString(), requestEndTime.toString(),
+//              String.valueOf(requestEndTime.getTime() - requestStartTime.getTime()),
+//              String.valueOf(201), REQUEST_TYPE
+//              ));
           retryCount = 0;
           totalCount.getAndIncrement();
         } catch (ApiException e) {
@@ -249,6 +242,8 @@ public class Part3 {
             failedCount.incrementAndGet();
             System.out.println("Failed");
           }
+        } catch (InterruptedException e) {
+          e.printStackTrace();
         }
       }
     }
