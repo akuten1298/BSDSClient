@@ -24,9 +24,9 @@ public class SwipeApiExample {
 
   private static final String LOCAL_SERVER_PATH = "http://localhost:8082/BSDSServer_war_exploded/";
 
-  private static final int NUM_THREADS = 100;
+  private static final int NUM_THREADS = 1;
 
-  private static final int TASKS_PER_THREAD = 5000;
+  private static final int TASKS_PER_THREAD = 1;
 
   public static AtomicInteger failedCount;
 
