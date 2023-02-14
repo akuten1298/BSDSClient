@@ -31,8 +31,8 @@ public class Part3 {
   private static final String EC2_SERVER_PATH = "http://54.70.221.86:8080/BSDSServer_war/";
 
   private static final String LOCAL_SERVER_PATH = "http://localhost:8082/BSDSServer_war_exploded/";
-  private static final int NUM_THREADS = 10;
-  private static final int TASKS_PER_THREAD = 100;
+  private static final int NUM_THREADS = 100;
+  private static final int TASKS_PER_THREAD = 5000;
 
   private static final int PERCENTILE = 99;
 
@@ -89,7 +89,16 @@ public class Part3 {
       throw new RuntimeException(e);
     }
 
+    try {
+      queue.put(new CSVRecord(true));
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     System.out.println("Total produced records: " + totalCount.get());
+
+    Stats stats = new Stats();
+    calculateStats(stats);
 
     Timestamp endTime = Timestamp.from(Instant.now());
     System.out.println("Total End Time: " + endTime);
@@ -101,9 +110,6 @@ public class Part3 {
     }
 
     long throughput = (NUM_THREADS * TASKS_PER_THREAD)/totalTimeInSeconds;
-
-    Stats stats = new Stats();
-    calculateStats(stats);
 
     System.out.println("Total time: " + timeDiff + " ms");
     System.out.println("Total time in seconds: " + totalTimeInSeconds);
@@ -119,12 +125,6 @@ public class Part3 {
     System.out.println("99th Percentile Latency: " + stats.getPercentileLatency() + "ms");
 
     try {
-      queue.put(new CSVRecord(true));
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    try {
       for(int i = 0; i < NUM_CONSUMER_THREADS; i++) {
         csvWriters[i].join();
       }
@@ -135,6 +135,7 @@ public class Part3 {
     System.out.println("Total consumed records: " + CSVCustomWriter.atomicInteger.get());
     printWriter.flush();
     printWriter.close();
+
   }
 
   public static void calculateStats(Stats stats) {
