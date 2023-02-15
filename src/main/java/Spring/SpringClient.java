@@ -9,6 +9,13 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
 /**
  * @author aakash
  */
@@ -77,30 +84,55 @@ public class SpringClient {
   }
 
   public static void sendRequest() {
-    SwipeDetails body = new SwipeDetails();
-    SwipeApi apiInstance = new SwipeApi();
-    apiInstance.getApiClient().setBasePath(LOCAL_SPRING_SERVER_PATH);
 
-    for(int i = 0; i < TASKS_PER_THREAD; i++) {
-      String swipeDirection = randomSwipe();
-      body.setSwipee(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPEE_MAX+1)));
-      body.setSwiper(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPER_MAX+1)));
-      body.setComment(randomCommentGenerator());
-      int retryCount = 5;
-      while(retryCount > 0) {
-        try {
-          apiInstance.swipe(body, swipeDirection);
-          retryCount = 0;
-        } catch (ApiException e) {
-          retryCount--;
-          if(retryCount == 0) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-            failedCount.incrementAndGet();
-          }
-        }
-      }
-    }
+    RestTemplate restTemplate = new RestTemplate();
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    SwipeDetails body = new SwipeDetails();
+    String swipeDirection = randomSwipe();
+    body.setSwipee(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPEE_MAX+1)));
+    body.setSwiper(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPER_MAX+1)));
+    body.setComment(randomCommentGenerator());
+
+    HttpEntity<SwipeDetails> request = new HttpEntity<>(body, headers);
+
+    String url = "http://localhost:8080/swipe/" + swipeDirection;
+    ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+    System.out.println(response.getStatusCode());
+
+// Get the response body
+    String responseBody = response.getBody();
+
+    System.out.println(responseBody);
+
+    // ----------------------------
+
+//    SwipeApi apiInstance = new SwipeApi();
+//    apiInstance.getApiClient().setBasePath(LOCAL_SPRING_SERVER_PATH);
+//    SwipeDetails body = new SwipeDetails();
+//    for(int i = 0; i < TASKS_PER_THREAD; i++) {
+//      String swipeDirection = randomSwipe();
+//      body.setSwipee(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPEE_MAX+1)));
+//      body.setSwiper(String.valueOf(ThreadLocalRandom.current().nextInt(1, SWIPER_MAX+1)));
+//      body.setComment(randomCommentGenerator());
+//      int retryCount = 5;
+//      while(retryCount > 0) {
+//        try {
+//          apiInstance.swipe(body, swipeDirection);
+//          retryCount = 0;
+//        } catch (ApiException e) {
+//          retryCount--;
+//          if(retryCount == 0) {
+//            e.printStackTrace();
+//            System.out.println(e.getMessage());
+//            failedCount.incrementAndGet();
+//          }
+//        }
+//      }
+//    }
   }
 
   public static String randomSwipe() {

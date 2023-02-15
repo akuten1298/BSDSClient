@@ -89,6 +89,9 @@ public class Part3 {
       throw new RuntimeException(e);
     }
 
+    Timestamp endTime = Timestamp.from(Instant.now());
+    System.out.println("Total End Time: " + endTime);
+
     try {
       queue.put(new CSVRecord(true));
     } catch (InterruptedException e) {
@@ -99,9 +102,6 @@ public class Part3 {
 
     Stats stats = new Stats();
     calculateStats(stats);
-
-    Timestamp endTime = Timestamp.from(Instant.now());
-    System.out.println("Total End Time: " + endTime);
 
     long timeDiff = endTime.getTime() - startTime.getTime();
     long totalTimeInSeconds = timeDiff/1000;

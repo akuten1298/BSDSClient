@@ -1,5 +1,9 @@
+import com.opencsv.CSVWriter;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author aakash
@@ -11,35 +15,35 @@ public class CSVDemo {
     boolean append = true;
 
     try {
-      FileWriter fileWriter = new FileWriter("trial2.csv");
-//      CSVWriter writer = new CSVWriter(fileWriter);
+      FileWriter fileWriter = new FileWriter("joma.csv");
+      BufferedWriter bf = new BufferedWriter(fileWriter);
+      CSVWriter writer = new CSVWriter(bf);
 
-      // Write data
-      fileWriter.write("Start Time,");
-      fileWriter.write(" End Time,");
-      fileWriter.write(" Latency,");
-      fileWriter.write(" Response Code,");
-      fileWriter.write(" Request Type");
-      fileWriter.write(System.getProperty( "line.separator" ));
-      fileWriter.flush();
+      List<String[]> lines = new ArrayList<>();
 
       for(int i = 0; i < 500000; i++) {
 
-//        fileWriter.write("trial");
-        fileWriter.write("Start Time,");
-        fileWriter.write(" End Time,");
-        fileWriter.write(" Latency,");
-        fileWriter.write(" Response Code,");
-        fileWriter.write(" Request Type");
-        fileWriter.write(System.getProperty( "line.separator" ));
+        String[] data = {String.valueOf(i), " start time", "end time", "latency", "response", "request"};
+        lines.add(data);
 
-        fileWriter.flush();
+//        fileWriter.write("trial");
+//        meta.append("Start Time,");
+//        meta.append(" End Time,");
+//        meta.append(" Latency,");
+//        meta.append(" Response Code,");
+//        meta.append(" Request Type");
+//        meta.append(System.getProperty( "line.separator" ));
 
       }
 
-//      writer.close();
-      fileWriter.flush();
+      writer.writeAll(lines);
+
+      writer.close();
+      bf.close();
       fileWriter.close();
+
+//      fileWriter.write(String.valueOf(meta));
+//      writer.close();
 
     } catch (IOException e) {
       throw new RuntimeException(e);
