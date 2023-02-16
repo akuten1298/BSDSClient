@@ -104,7 +104,6 @@ public class SpringClient {
       try {
         response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
       } catch (Exception e) {
-        System.out.println(e.getMessage());
       }
       if(response != null && !response.getStatusCode().is2xxSuccessful())
         failedCount.getAndIncrement();
