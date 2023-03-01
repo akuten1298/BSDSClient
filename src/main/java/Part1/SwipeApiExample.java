@@ -20,13 +20,13 @@ public class SwipeApiExample {
   private static final int SWIPER_MAX = 5000;
   private static final int COMMENTS_MAX_CHAR_LIMIT = 256;
   private static final int LOWER_CASE_ALPHABET_CHAR_LIMIT = 26;
-  private static final String EC2_SERVER_PATH = "http://54.70.221.86:8080/BSDSServer_war/";
+  private static final String EC2_SERVER_PATH = "http://35.91.95.145:8080/BSDSServer_war/";
 
   private static final String LOCAL_SERVER_PATH = "http://localhost:8080/BSDSServer_war_exploded/";
 
-  private static final int NUM_THREADS = 10;
+  private static final int NUM_THREADS = 100;
 
-  private static final int TASKS_PER_THREAD = 10000;
+  private static final int TASKS_PER_THREAD = 5000;
 
   public static AtomicInteger failedCount;
 
@@ -78,7 +78,7 @@ public class SwipeApiExample {
   public static void sendRequest() {
     SwipeDetails body = new SwipeDetails();
     SwipeApi apiInstance = new SwipeApi();
-    apiInstance.getApiClient().setBasePath(LOCAL_SERVER_PATH);
+    apiInstance.getApiClient().setBasePath(EC2_SERVER_PATH);
 
     for(int i = 0; i < TASKS_PER_THREAD; i++) {
       String swipeDirection = randomSwipe();
