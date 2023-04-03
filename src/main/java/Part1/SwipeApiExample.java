@@ -16,17 +16,17 @@ public class SwipeApiExample {
 
   private static final String LEFT = "left";
   private static final String RIGHT = "right";
-  private static final int SWIPEE_MAX = 100000;
-  private static final int SWIPER_MAX = 5000;
+  private static final int SWIPEE_MAX = 50000;
+  private static final int SWIPER_MAX = 50000;
   private static final int COMMENTS_MAX_CHAR_LIMIT = 256;
   private static final int LOWER_CASE_ALPHABET_CHAR_LIMIT = 26;
-  private static final String EC2_SERVER_PATH = "http://35.91.95.145:8080/BSDSServer_war/";
+  private static final String EC2_SERVER_PATH = "http://44.224.179.73:8080/BSDSServer_war/";
 
   private static final String LOCAL_SERVER_PATH = "http://localhost:8080/BSDSServer_war_exploded/";
 
-  private static final int NUM_THREADS = 100;
+  private static final int NUM_THREADS = 200;
 
-  private static final int TASKS_PER_THREAD = 5000;
+  private static final int TASKS_PER_THREAD = 2500;
 
   public static AtomicInteger failedCount;
 

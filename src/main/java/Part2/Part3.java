@@ -24,20 +24,16 @@ public class Part3 {
 
   private static final String LEFT = "left";
   private static final String RIGHT = "right";
-  private static final int SWIPEE_MAX = 100000;
-  private static final int SWIPER_MAX = 5000;
+  private static final int SWIPEE_MAX = 50000;
+  private static final int SWIPER_MAX = 50000;
   private static final int COMMENTS_MAX_CHAR_LIMIT = 256;
   private static final int LOWER_CASE_ALPHABET_CHAR_LIMIT = 26;
-  private static final String EC2_SERVER_PATH = "http://54.70.221.86:8080/BSDSServer_war/";
-
-  private static final String LOCAL_SERVER_PATH = "http://localhost:8082/BSDSServer_war_exploded/";
-  private static final int NUM_THREADS = 100;
-  private static final int TASKS_PER_THREAD = 5000;
-
+  public static final String EC2_SERVER_PATH = "http://54.187.62.84:8080/BSDSServer_war/";
+  private static final String LOCAL_SERVER_PATH = "http://localhost:8080/BSDSServer_war_exploded/";
+  private static final int NUM_THREADS = 200;
+  private static final int TASKS_PER_THREAD = 2500;
   private static final int PERCENTILE = 99;
-
   private static final int NUM_CONSUMER_THREADS = 1;
-
   private static final String REQUEST_TYPE = "POST";
   public static AtomicInteger failedCount;
   public static AtomicInteger totalCount;
@@ -81,6 +77,10 @@ public class Part3 {
       tids[i].start();
     }
 
+    GetRequestSender getRequestCaller = new GetRequestSender();
+    Thread thread = new Thread(getRequestCaller);
+    thread.start();
+
     try {
       for(int i = 0; i <  NUM_THREADS; i++) {
         tids[i].join();
@@ -88,6 +88,8 @@ public class Part3 {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+
+    thread.interrupt();
 
     Timestamp endTime = Timestamp.from(Instant.now());
     System.out.println("Total End Time: " + endTime);
@@ -111,6 +113,7 @@ public class Part3 {
 
     long throughput = (NUM_THREADS * TASKS_PER_THREAD)/totalTimeInSeconds;
 
+    System.out.println("---------------------POST REQUEST STATS----------------");
     System.out.println("Total time: " + timeDiff + " ms");
     System.out.println("Total time in seconds: " + totalTimeInSeconds);
 
@@ -136,6 +139,7 @@ public class Part3 {
     printWriter.flush();
     printWriter.close();
 
+    getRequestCaller.calculateStats();
   }
 
   public static void calculateStats(Stats stats) {
@@ -218,4 +222,5 @@ public class Part3 {
     }
     return builder.toString();
   }
+
 }
